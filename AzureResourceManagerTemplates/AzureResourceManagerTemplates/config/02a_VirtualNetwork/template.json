@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetAddressPrefixes": {
+      "type": "array"
+    },
+    "vnetDnsServers": {
+      "type": "array"
+    },
+    "subnetGWAddressPrefix": {
+      "type": "string"
+    },
+    "subnetAppseAddressPrefix": {
+      "type": "string"
+    },
+    "subnetFabricAddressPrefix": {
+      "type": "string"
+    },
+    "subnetVMAddressPrefix": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "resourceGroupName": "[resourceGroup().name]",
+    "resourceGroupLocation": "[resourceGroup().location]",
+    "vnetName": "[concat(variables('resourceGroupName'), '-vnet')]",
+    "subnetGWName": "GatewaySubnet",
+    "subnetappEnvName": "AppService",
+    "subnetFabricName": "Fabric",
+    "subnetVMName": "VM"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vnetName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[variables('resourceGroupLocation')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[parameters('vnetAddressPrefixes')]"
+        },
+        "dhcpOptions": {
+          "dnsServers": "[parameters('vnetDnsServers')]"
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetGWName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetGWAddressPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('subnetappEnvName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAppseAddressPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('subnetFabricName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetFabricAddressPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('subnetVMName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetVMAddressPrefix')]"
+            }
+          }
+        ]
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ]
+}

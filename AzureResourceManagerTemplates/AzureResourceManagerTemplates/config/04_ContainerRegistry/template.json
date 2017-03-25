@@ -1,0 +1,62 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUserEnabled": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable admin user"
+      }
+    }
+  },
+  "variables": {
+    "resourceGroupName": "[resourceGroup().name]",
+    "resourceGroupLocation": "[resourceGroup().location]",
+    "registryApiVersion": "2016-06-27-preview",
+    "registryName": "[replace(concat(variables('resourceGroupName'), '-registry'), '-', '')]",
+    "storageApiVersion": "2016-01-01",
+    "storageAccountName": "[replace(concat(variables('registryName'), '-storage'), '-', '')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('storageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[variables('resourceGroupLocation')]",
+      "apiVersion": "[variables('storageApiVersion')]",
+      "tags": {
+        "containerregistry": "[variables('registryName')]"
+      },
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {
+        "encryption": {
+          "services": {
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      }
+    },
+    {
+      "name": "[variables('registryName')]",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "location": "[variables('resourceGroupLocation')]",
+      "apiVersion": "[variables('registryApiVersion')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "adminUserEnabled": "[parameters('adminUserEnabled')]",
+        "storageAccount": {
+          "name": "[variables('storageAccountName')]",
+          "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('storageApiVersion')).keys[0].value]"
+        }
+      }
+    }
+  ]
+}

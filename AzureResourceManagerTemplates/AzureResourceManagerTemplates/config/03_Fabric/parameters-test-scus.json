@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "test-scus-fabric"
+    },
+    "adminUserName": {
+      "value": "responsiveadmin"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/guid/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+        },
+        "secretName": "test-scus-fabric-vm"
+      }
+    },
+    "dnsName": {
+      "value": "test-scus-fabric"
+    },
+    "sourceVaultValue": {
+      "value": "/subscriptions/guid/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+    },
+    "primaryCertificateThumbprint": {
+      "value": ""
+    },
+    "secondaryCertificateThumbprint": {
+      "value": ""
+    },
+    "clientCertificateThumbprints": {
+      "value": [
+        {
+          "isAdmin": true,
+          "certificateThumbprint": ""
+        }
+      ]
+    },
+    "vaultCertificates": {
+      "value": [
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-primarycertificate/guid"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-secondarycertificate/guid"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-admincertificate/guid"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-encryptioncertificate/guid"
+        }
+      ]
+    }
+  }
+}
