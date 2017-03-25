@@ -1,6 +1,7 @@
 [Oo]bj/
 [Bb]in/
 packages/
+pkg/
 .vs/
 *.suo
 *.pfx
