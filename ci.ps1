@@ -19,7 +19,15 @@ Write-Host ""
 
 function Main($task, $configuration, $version)
 {
-    if ($task -eq 'Build')
+    if ($task -eq 'Encrypt')
+    {
+        EncryptTask $configuration $version
+    }
+    elseif ($task -eq 'Decrypt')
+    {
+        DecryptTask $configuration $version
+    }
+    elseif ($task -eq 'Build')
     {
         BuildTask $configuration $version
     }
@@ -31,6 +39,24 @@ function Main($task, $configuration, $version)
     {
         FabricTask $configuration $version
     }
+}
+
+function EncryptTask($configuration, $version)
+{
+    $root = $pwd
+    cd EncryptionToolOutput
+    dotnet EncryptionTool.dll EncryptXml "$root\FullFrameworkApps\ConsoleApp1\App.$configuration.config"
+    cd ..
+    Write-Host "Encrypt completed"
+}
+
+function DecryptTask($configuration, $version)
+{
+    $root = $pwd
+    cd EncryptionToolOutput
+    dotnet EncryptionTool.dll DecryptXml "$root\FullFrameworkApps\ConsoleApp1\App.$configuration.config"
+    cd ..
+    Write-Host "Decrypt completed"
 }
 
 function BuildTask($configuration, $version)
