@@ -11,7 +11,7 @@ namespace CryptoTool
 {
     // Use this powershell commands to create your own certificate
     // $cert = New-SelfSignedCertificate -CertStoreLocation Cert:\CurrentUser\My -Type DocumentEncryptionCert -KeyUsage DataEncipherment -Subject 'encryption' -Provider 'Microsoft Enhanced Cryptographic Provider v1.0' -NotAfter(Get-Date).AddYears(30)
-    // $securePassword = ConvertTo-SecureString -String "1234" -Force –AsPlainTextC:\git\AzureServiceFabricContainers\EncryptionTool\EncryptionTool\Program.cs
+    // $securePassword = ConvertTo-SecureString -String "1234" -Force –AsPlainText
     // $cert | Export-PfxCertificate -FilePath 'private.pfx' -Password $securePassword
     // $cert | Export-Certificate -FilePath 'public.cer'
 
