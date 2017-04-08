@@ -57,6 +57,9 @@
     <None Include="App.test-scus.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
+    <None Include="ConsoleApp1.exe.config.securetext">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Dockerfile" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

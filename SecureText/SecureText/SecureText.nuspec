@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>SecureText</id>
+    <version>1.0.0</version>
+    <title>SecureText</title>
+    <authors>Gustavo Armenta</authors>
+    <owners>Gustavo Armenta</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>SecureText is used to encrypt values in App.config files</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2017</copyright>
+  </metadata>
+  <files>
+    <file src="bin\Debug\SecureText.dll" />
+    <file src="bin\Debug\SecureText.pdb" />
+    <file src="bin\Debug\appSettings.json" />
+  </files>
+</package>

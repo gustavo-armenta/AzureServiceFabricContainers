@@ -44,18 +44,18 @@ function Main($task, $configuration, $version)
 function EncryptTask($configuration, $version)
 {
     $root = $pwd
-    cd EncryptionToolOutput
-    dotnet EncryptionTool.dll EncryptXml "$root\FullFrameworkApps\ConsoleApp1\App.$configuration.config"
-    cd ..
+    Push-Location "$root\packages\SecureText.1.0.0"
+    dotnet SecureText.dll Encrypt "$root\FullFrameworkApps"
+    Pop-Location
     Write-Host "Encrypt completed"
 }
 
 function DecryptTask($configuration, $version)
 {
     $root = $pwd
-    cd EncryptionToolOutput
-    dotnet EncryptionTool.dll DecryptXml "$root\FullFrameworkApps\ConsoleApp1\App.$configuration.config"
-    cd ..
+    Push-Location "$root\packages\SecureText.1.0.0"
+    dotnet SecureText.dll Decrypt "$root\FullFrameworkApps"
+    Pop-Location
     Write-Host "Decrypt completed"
 }
 
@@ -71,6 +71,14 @@ function BuildTask($configuration, $version)
 
     BuildConsoleApp "$pwd\FullFrameworkApps\ConsoleApp1\ConsoleApp1.csproj" $configuration
     BuildWebApp "$pwd\FullFrameworkApps\WebApplication1\WebApplication1.csproj" $configuration
+
+    $root = $pwd
+    $packagePath = "$env:SystemDrive\ci\$configuration"
+    Push-Location "$root\packages\SecureText.1.0.0"
+    dotnet SecureText.dll Decrypt "$packagePath"
+    Pop-Location
+    Get-ChildItem $packagePath -Recurse | Where{$_.Name -Match ".*(.securetext)$"} | Remove-Item
+    Write-Host "Decrypt completed"
 }
 
 function ContainerTask($configuration, $version)
@@ -91,14 +99,15 @@ function BuildConsoleApp($project, $configuration)
     $namespace = @{m = 'http://schemas.microsoft.com/developer/msbuild/2003'}
     $assemblyName = Select-Xml -Xml $xml -Namespace $namespace -XPath '//m:AssemblyName' | %{$_.Node.'#text'}
     $projectPath = Split-Path $project -Parent
-    if (Test-Path "$projectPath\obj\ci\$configuration")
+    $packagePath = GetPackagePath $configuration $assemblyName
+    if (Test-Path "$packagePath")
     {
-        Remove-Item "$projectPath\obj\ci\$configuration" -Recurse
+        Remove-Item "$packagePath" -Recurse
     }
 
-    Copy-Item "$projectPath\bin\Release" "$projectPath\obj\ci\$configuration\Package" -Recurse
-    XmlDocTransform "$projectPath\App.config" "$projectPath\App.$configuration.config" "$projectPath\obj\ci\$configuration\Package\$assemblyName.exe.config"
-    Write-Host "  $assemblyName -> $projectPath\obj\ci\$configuration\Package"
+    Copy-Item "$projectPath\bin\Release" "$packagePath" -Recurse
+    XmlDocTransform "$projectPath\App.config" "$projectPath\App.$configuration.config" "$packagePath\$assemblyName.exe.config"
+    Write-Host "  $assemblyName -> $packagePath"
 }
 
 function BuildWebApp($project, $configuration)
@@ -107,21 +116,22 @@ function BuildWebApp($project, $configuration)
     $namespace = @{m = 'http://schemas.microsoft.com/developer/msbuild/2003'}
     $assemblyName = Select-Xml -Xml $xml -Namespace $namespace -XPath '//m:AssemblyName' | %{$_.Node.'#text'}
     $projectPath = Split-Path $project -Parent
-    if (Test-Path "$projectPath\obj\Release")
+    $packagePath = GetPackagePath $configuration $assemblyName
+    if (Test-Path "$projectPath\obj\Release\Package")
     {
-        Remove-Item "$projectPath\obj\Release" -Recurse
+        Remove-Item "$projectPath\obj\Release\Package" -Recurse
     }
 
-    if (Test-Path "$projectPath\obj\ci\$configuration")
+    if (Test-Path "$packagePath")
     {
-        Remove-Item "$projectPath\obj\ci\$configuration" -Recurse
+        Remove-Item "$packagePath" -Recurse
     }
 
-    & $msbuild $project /nologo /v:minimal /t:Package /p:Configuration=Release /p:DefaultDeployIisAppPath="Default Web Site" /p:PackageTraceLevel=Warning `
+    & $msbuild $project /nologo /v:minimal /t:Package /p:Configuration=Release `
+        /p:PackageAsSingleFile=False /p:PackageLocation=$packagePath /p:PackageTraceLevel=Warning /p:DefaultDeployIisAppPath="Default Web Site" `
         /p:ProjectConfigTransformFileName=Web.$configuration.config
 
-    Copy-Item "$projectPath\obj\Release\Package\*" "$projectPath\obj\ci\$configuration\Package"
-    Write-Host "  $assemblyName -> $projectPath\obj\ci\$configuration\Package"
+    Write-Host "  $assemblyName -> $packagePath"
 }
 
 function BuildContainer($project, $configuration, $version)
@@ -130,6 +140,8 @@ function BuildContainer($project, $configuration, $version)
     $namespace = @{m = 'http://schemas.microsoft.com/developer/msbuild/2003'}
     $assemblyName = Select-Xml -Xml $xml -Namespace $namespace -XPath '//m:AssemblyName' | %{$_.Node.'#text'}
     $projectPath = Split-Path $project -Parent
+    $packagePath = GetPackagePath $configuration $assemblyName
+    $packagePath = Split-Path $packagePath -Parent
 
     # The docker daemon requires build 14393 or later of Windows Server 2016 or Windows 10
     $docker = "$env:ProgramFiles\Docker\docker.exe"
@@ -141,12 +153,12 @@ function BuildContainer($project, $configuration, $version)
         }
     }
 
-    Copy-Item "$projectPath\Dockerfile" -Destination "$projectPath\obj\ci\$configuration"
-    Copy-Item tools -Destination "$projectPath\obj\ci\$configuration" -Recurse
+    Copy-Item "$projectPath\Dockerfile" -Destination "$packagePath"
+    Copy-Item tools -Destination "$packagePath" -Recurse
     $container = GetContainer $assemblyName $configuration $version
     try
     {
-        & $docker build --no-cache -t $container "$projectPath\obj\ci\$configuration"
+        & $docker build --no-cache -t $container "$packagePath"
         Write-Host "  $assemblyName -> $container"
         if ($LASTEXITCODE -ne 0) 
         {
@@ -186,6 +198,12 @@ function BuildFabric($project, $configuration, $version)
     PokeXml $manifest "/f:ServiceManifest/f:CodePackage/@Version" $version $namespaces
     PokeXml $manifest "/f:ServiceManifest/f:CodePackage/f:EntryPoint/f:ContainerHost/f:ImageName" $imageName $namespaces
     PokeXml $manifest "/f:ServiceManifest/f:ConfigPackage/@Version" $version $namespaces
+}
+
+function GetPackagePath($configuration, $assemblyName)
+{
+    $packagePath = "$env:SystemDrive\ci\$configuration\$assemblyName\Package"
+    return $packagePath
 }
 
 function GetContainer($name, $configuration, $version) {

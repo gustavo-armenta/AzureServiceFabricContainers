@@ -1,0 +1,3 @@
+﻿<secureText>
+  <xpath>/connectionStrings/add[@name='mySecret']/@connectionString</xpath>
+</secureText>

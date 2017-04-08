@@ -1,0 +1,3 @@
+﻿<secureText>
+  <xpath>/appSettings/add[@key='mySecret']/@value</xpath>
+</secureText>

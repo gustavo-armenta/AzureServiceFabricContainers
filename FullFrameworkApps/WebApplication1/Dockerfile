@@ -8,7 +8,7 @@ RUN powershell Start-Process msiexec.exe -ArgumentList '/i c:\tools\WebDeploy_3_
 
 WORKDIR /Package
 COPY Package .
-RUN WebApplication1.deploy.cmd, /Y
+RUN Archive.deploy.cmd, /Y
 
 WORKDIR /
 RUN rd /s /q c:\tools
