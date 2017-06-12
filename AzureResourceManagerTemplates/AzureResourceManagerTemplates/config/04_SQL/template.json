@@ -1,0 +1,319 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachineName": {
+      "type": "string"
+    },
+    "virtualMachineSize": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "addressPrefix": {
+      "type": "string"
+    },
+    "subnetPrefix": {
+      "type": "string"
+    },
+    "sqlStorageDisksCount": {
+      "type": "int"
+    },
+    "sqlStorageStartingDeviceId": {
+      "type": "int"
+    },
+    "sqlStorageDeploymentToken": {
+      "type": "int"
+    },
+    "sqlAutopatchingDayOfWeek": {
+      "type": "string"
+    },
+    "sqlAutopatchingStartHour": {
+      "type": "string"
+    },
+    "sqlAutopatchingWindowDuration": {
+      "type": "string"
+    },
+    "sqlAutobackupRetentionPeriod": {
+      "type": "string"
+    },
+    "sqlAutobackupEncryptionPassword": {
+      "type": "securestring"
+    },
+    "backupSystemDbs": {
+      "type": "string"
+    },
+    "backupScheduleType": {
+      "type": "string"
+    },
+    "sqlAuthenticationLogin": {
+      "type": "string"
+    },
+    "sqlAuthenticationPassword": {
+      "type": "securestring"
+    },
+    "rServicesEnabled": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "resourceGroupName": "[resourceGroup().name]",
+    "resourceGroupLocation": "[resourceGroup().location]",
+    "vnetName": "[concat(variables('resourceGroupName'), '-vnet')]",
+    "subnetName": "VM",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+    //"subnetRef": "[concat(variables('vnetID'), '/subnets/', variables('subnetName'))]",
+    "subnetRef": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/dellit-respTrans-rg1/providers/Microsoft.Network/virtualNetworks/dellit-respTrans-vNet/subnets/respTransNet01",
+    "diagnosticsStorageAccountName": "[replace(concat(variables('resourceGroupName'), 'platformlogs'),'-','')]",
+    "networkInterfaceName": "[concat(parameters('virtualMachineName'), '-nic')]",
+    "networkSecurityGroupName": "[concat(parameters('virtualMachineName'), '-nsg')]",
+    "availabilitySetName": "[concat(parameters('virtualMachineName'), '-availabilityset')]",
+    "publicIpAddressName": "[concat(parameters('virtualMachineName'), '-ip')]"
+  },
+  "resources": [
+    {
+      "name": "[parameters('virtualMachineName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[variables('resourceGroupLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]"
+      ],
+      "properties": {
+        "osProfile": {
+          "computerName": "[parameters('virtualMachineName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "provisionVmAgent": "true"
+          }
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('virtualMachineSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftSQLServer",
+            "offer": "SQL2016SP1-WS2016",
+            "sku": "Enterprise",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(parameters('virtualMachineName'), '-disk-os')]",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
+          },
+          "dataDisks": [
+            {
+              "name": "[concat(parameters('virtualMachineName'), '-disk-data')]",
+              "createOption": "Empty",
+              "lun": 0,
+              "diskSizeGB": 1023,
+              "caching": "ReadOnly",
+              "managedDisk": {
+                "storageAccountType": "Premium_LRS"
+              }
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('test-scus', 'Microsoft.Storage/storageAccounts', variables('diagnosticsStorageAccountName')), '2015-06-15').primaryEndpoints['blob']]"
+          }
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('virtualMachineName'), '/SqlIaasExtension')]",
+      "location": "[variables('resourceGroupLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]",
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
+      ],
+      "properties": {
+        "type": "SqlIaaSAgent",
+        "publisher": "Microsoft.SqlServer.Management",
+        "typeHandlerVersion": "1.2",
+        "autoUpgradeMinorVersion": "true",
+        "settings": {
+          "AutoTelemetrySettings": {
+            "Region": "[variables('resourceGroupLocation')]"
+          },
+          "AutoPatchingSettings": {
+            "PatchCategory": "WindowsMandatoryUpdates",
+            "Enable": true,
+            "DayOfWeek": "[parameters('sqlAutopatchingDayOfWeek')]",
+            "MaintenanceWindowStartingHour": "[parameters('sqlAutopatchingStartHour')]",
+            "MaintenanceWindowDuration": "[parameters('sqlAutopatchingWindowDuration')]"
+          },
+          "AutoBackupSettings": {
+            "Enable": true,
+            "RetentionPeriod": "[parameters('sqlAutobackupRetentionPeriod')]",
+            "EnableEncryption": true,
+            "BackupSystemDbs": "[parameters('backupSystemDbs')]",
+            "BackupScheduleType": "[parameters('backupScheduleType')]"
+          },
+          "KeyVaultCredentialSettings": {
+            "Enable": false,
+            "CredentialName": ""
+          },
+          "ServerConfigurationsManagementSettings": {
+            "SQLConnectivityUpdateSettings": {
+              "ConnectivityType": "Private",
+              "Port": 1433
+            },
+            "SQLWorkloadTypeUpdateSettings": {
+              "SQLWorkloadType": "GENERAL"
+            },
+            "SQLStorageUpdateSettings": {
+              "DiskCount": "[parameters('sqlStorageDisksCount')]",
+              "NumberOfColumns": "[parameters('sqlStorageDisksCount')]",
+              "StartingDeviceID": "[parameters('sqlStorageStartingDeviceId')]",
+              "DiskConfigurationType": "NEW"
+            },
+            "AdditionalFeaturesServerConfigurations": {
+              "IsRServicesEnabled": "[parameters('rServicesEnabled')]"
+            }
+          }
+        },
+        "protectedSettings": {
+          "StorageUrl": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticsStorageAccountName')), '2015-06-15').primaryEndpoints['blob']]",
+          "StorageAccessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticsStorageAccountName')), '2015-06-15').key1]",
+          "Password": "[parameters('sqlAutobackupEncryptionPassword')]",
+          "SQLAuthUpdateUserName": "[parameters('sqlAuthenticationLogin')]",
+          "SQLAuthUpdatePassword": "[parameters('sqlAuthenticationPassword')]"
+        }
+      }
+    },
+    {
+      "name": "[variables('availabilitySetName')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[variables('resourceGroupLocation')]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 5,
+        "managed": true
+      }
+    },
+    {
+      "name": "[variables('diagnosticsStorageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2015-06-15",
+      "location": "[variables('resourceGroupLocation')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    //{
+    //  "name": "[variables('vNetName')]",
+    //  "type": "Microsoft.Network/virtualNetworks",
+    //  "apiVersion": "2016-12-01",
+    //  "location": "[variables('resourceGroupLocation')]",
+    //  "properties": {
+    //    "addressSpace": {
+    //      "addressPrefixes": [
+    //        "[parameters('addressPrefix')]"
+    //      ]
+    //    },
+    //    "subnets": [
+    //      {
+    //        "name": "[variables('subnetName')]",
+    //        "properties": {
+    //          "addressPrefix": "[parameters('subnetPrefix')]"
+    //        }
+    //      }
+    //    ]
+    //  }
+    //},
+    {
+      "name": "[variables('networkInterfaceName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2016-09-01",
+      "location": "[variables('resourceGroupLocation')]",
+      "dependsOn": [
+        //"[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
+        //"[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+              //"publicIpAddress": {
+              //  "id": "[resourceId('test-scus','Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
+              //}
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('test-scus', 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        }
+      }
+    },
+    //{
+    //  "name": "[variables('publicIpAddressName')]",
+    //  "type": "Microsoft.Network/publicIPAddresses",
+    //  "apiVersion": "2016-09-01",
+    //  "location": "[variables('resourceGroupLocation')]",
+    //  "properties": {
+    //    "publicIPAllocationMethod": "Dynamic"
+    //  }
+    //},
+    {
+      "name": "[variables('networkSecurityGroupName')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2016-09-01",
+      "location": "[variables('resourceGroupLocation')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-rdp",
+            "properties": {
+              "priority": 1000,
+              "sourceAddressPrefix": "*",
+              "protocol": "Tcp",
+              "destinationPortRange": "3389",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "adminUsername": {
+      "type": "string",
+      "value": "[parameters('adminUsername')]"
+    }
+  }
+}

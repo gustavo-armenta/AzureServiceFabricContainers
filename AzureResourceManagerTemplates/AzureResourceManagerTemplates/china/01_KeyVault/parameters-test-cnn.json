@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "accessPolicies": {
+      "value": [
+        {
+          "objectId": "5c124897-05b3-4035-81d9-e7f1694885a4",
+          "tenantId": "255b0155-77ff-48f1-9c0a-d0136b905b77",
+          "permissions": {
+            "keys": [
+              "Get",
+              "List",
+              "Update",
+              "Create",
+              "Import",
+              "Delete",
+              "Backup",
+              "Restore"
+            ],
+            "secrets": [
+              "All"
+            ],
+            "certificates": []
+          }
+        }
+      ]
+    },
+    "tenant": {
+      "value": "255b0155-77ff-48f1-9c0a-d0136b905b77"
+    }
+  }
+}

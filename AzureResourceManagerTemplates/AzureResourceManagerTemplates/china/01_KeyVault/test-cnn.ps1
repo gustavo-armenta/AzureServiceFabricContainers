@@ -1,8 +1,8 @@
-Login-AzureRmAccount
+Login-AzureRmAccount -EnvironmentName AzureChinaCloud
 
 . .\common.ps1
-$ResourceGroupName = "test-scus"
-$ResourceGroupLocation = "southcentralus"
+$ResourceGroupName = "test-cnn"
+$ResourceGroupLocation = "chinanorth"
 Sql-AddKeyVaultSecrets -ResourceGroupName $ResourceGroupName -ResourceGroupLocation $ResourceGroupLocation
 Fabric-AddKeyVaultSecrets -ResourceGroupName $ResourceGroupName -ResourceGroupLocation $ResourceGroupLocation
 

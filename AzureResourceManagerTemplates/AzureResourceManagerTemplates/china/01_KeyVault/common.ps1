@@ -41,33 +41,24 @@ function global:Fabric-AddKeyVaultSecrets
 	$securePassword = ConvertTo-SecureString -String $passwords.vm -Force -AsPlainText
 	CreatePassword $vaultName $secretName $securePassword
 
-	# Temporary ssl certificate
-	$secretName = "$fabricName-dell-ssl"
-	$dnsName = "*.dell.com"
-	$pfxFileName = "star.dell.com.pfx"
-	$pfxFilePath = Join-Path $pwd $pfxFileName
-	$password = $passwords.sslCertificate
-	$securePassword = ConvertTo-SecureString -String $password -Force -AsPlainText
-	CreateSslCertificate $vaultName $secretName $dnsName $pfxFilePath $password $securePassword
-
 	$secretName = "$fabricName-primarycertificate"
-	$dnsName = "*.$ResourceGroupLocation.cloudapp.azure.com"
-	$pfxFileName = "star.$ResourceGroupLocation.cloudapp.azure.com.primary.pfx"
+	$dnsName = "*.$ResourceGroupLocation.chinacloudapi.cn"
+	$pfxFileName = "star.$ResourceGroupLocation.chinacloudapi.cn.primary.pfx"
 	$pfxFilePath = Join-Path $pwd $pfxFileName
 	$password = $passwords.sslCertificate
 	$securePassword = ConvertTo-SecureString -String $password -Force -AsPlainText
 	CreateSslCertificate $vaultName $secretName $dnsName $pfxFilePath $password $securePassword
 
 	$secretName = "$fabricName-secondarycertificate"
-	$dnsName = "*.$ResourceGroupLocation.cloudapp.azure.com"
-	$pfxFileName = "star.$ResourceGroupLocation.cloudapp.azure.com.secondary.pfx"
+	$dnsName = "*.$ResourceGroupLocation.chinacloudapi.cn"
+	$pfxFileName = "star.$ResourceGroupLocation.chinacloudapi.cn.secondary.pfx"
 	$pfxFilePath = Join-Path $pwd $pfxFileName
 	$password = $passwords.sslCertificate
 	$securePassword = ConvertTo-SecureString -String $password -Force -AsPlainText
 	CreateSslCertificate $vaultName $secretName $dnsName $pfxFilePath $password $securePassword
 
 	$secretName = "$fabricName-admincertificate"
-	$dnsName = "admin.fabric.azure.com"
+	$dnsName = "admin.fabric.chinacloudapi.cn"
 	$pfxFileName = "$dnsName.pfx"
 	$pfxFilePath = Join-Path $pwd $pfxFileName
 	$password = $passwords.adminCertificate
@@ -75,7 +66,7 @@ function global:Fabric-AddKeyVaultSecrets
 	CreateSslCertificate $vaultName $secretName $dnsName $pfxFilePath $password $securePassword
 
 	$secretName = "$fabricName-encryptioncertificate"
-	$subject = "encryption.fabric.azure.com"
+	$subject = "encryption.fabric.chinacloudapi.cn"
 	$pfxFileName = "$subject.pfx"
 	$pfxFilePath = Join-Path $pwd $pfxFileName
 	$password = $passwords.encryptionCertificate

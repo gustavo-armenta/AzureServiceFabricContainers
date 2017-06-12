@@ -1,0 +1,26 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+  },
+  "variables": {
+    "resourceGroupName": "[resourceGroup().name]",
+    "resourceGroupLocation": "[resourceGroup().location]",
+    "serviceBusName": "[concat(variables('resourceGroupName'), '-servicebus')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2014-09-01",
+      "name": "[variables('serviceBusName')]",
+      "location": "[variables('resourceGroupLocation')]",
+      "type": "Microsoft.ServiceBus/namespaces",
+      "properties": {
+        "MessagingSku": "2",
+        "MessagingSKUPlan": {
+          "MessagingUnits": "1",
+          "SKU": "2"
+        }
+      }
+    }
+  ]
+}

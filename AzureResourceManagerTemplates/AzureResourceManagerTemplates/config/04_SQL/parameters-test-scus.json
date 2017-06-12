@@ -1,0 +1,78 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachineName": {
+      "value": "test-scus-sql"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_DS12_v2"
+    },
+    "adminUsername": {
+      "value": "responsiveadmin"
+    },
+    "addressPrefix": {
+      "value": "10.164.116.0/25"
+    },
+    "subnetPrefix": {
+      "value": "10.164.116.32/27"
+    },
+    "sqlStorageDisksCount": {
+      "value": 1
+    },
+    "sqlStorageStartingDeviceId": {
+      "value": 2
+    },
+    "sqlStorageDeploymentToken": {
+      "value": 82230
+    },
+    "sqlAutopatchingDayOfWeek": {
+      "value": "Sunday"
+    },
+    "sqlAutopatchingStartHour": {
+      "value": "2"
+    },
+    "sqlAutopatchingWindowDuration": {
+      "value": "60"
+    },
+    "sqlAutobackupRetentionPeriod": {
+      "value": "30"
+    },
+    "backupSystemDbs": {
+      "value": "false"
+    },
+    "backupScheduleType": {
+      "value": "Automated"
+    },
+    "sqlAuthenticationLogin": {
+      "value": "responsiveadmin"
+    },
+    "rServicesEnabled": {
+      "value": "false"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+        },
+        "secretName": "test-scus-sql-vm"
+      }
+    },
+    "sqlAuthenticationPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+        },
+        "secretName": "test-scus-sql-admin"
+      }
+    },
+    "sqlAutobackupEncryptionPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+        },
+        "secretName": "test-scus-sql-backup"
+      }
+    }
+  }
+}

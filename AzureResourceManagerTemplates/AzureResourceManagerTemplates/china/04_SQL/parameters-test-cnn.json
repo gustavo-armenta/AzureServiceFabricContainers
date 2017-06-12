@@ -1,0 +1,78 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachineName": {
+      "value": "test-cnn-sql"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_DS12_v2"
+    },
+    "adminUsername": {
+      "value": "responsiveadmin"
+    },
+    "addressPrefix": {
+      "value": "10.0.124.0/22"
+    },
+    "subnetPrefix": {
+      "value": "10.0.127.0/24"
+    },
+    "sqlStorageDisksCount": {
+      "value": 1
+    },
+    "sqlStorageStartingDeviceId": {
+      "value": 2
+    },
+    "sqlStorageDeploymentToken": {
+      "value": 82230
+    },
+    "sqlAutopatchingDayOfWeek": {
+      "value": "Sunday"
+    },
+    "sqlAutopatchingStartHour": {
+      "value": "2"
+    },
+    "sqlAutopatchingWindowDuration": {
+      "value": "60"
+    },
+    "sqlAutobackupRetentionPeriod": {
+      "value": "30"
+    },
+    "backupSystemDbs": {
+      "value": "false"
+    },
+    "backupScheduleType": {
+      "value": "Automated"
+    },
+    "sqlAuthenticationLogin": {
+      "value": "responsiveadmin"
+    },
+    "rServicesEnabled": {
+      "value": "false"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/590e5124-5ad4-4de3-abad-10e8c3b6a79f/resourceGroups/test-cnn/providers/Microsoft.KeyVault/vaults/test-cnn-keyvault"
+        },
+        "secretName": "test-cnn-sql-vm"
+      }
+    },
+    "sqlAuthenticationPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/590e5124-5ad4-4de3-abad-10e8c3b6a79f/resourceGroups/test-cnn/providers/Microsoft.KeyVault/vaults/test-cnn-keyvault"
+        },
+        "secretName": "test-cnn-sql-admin"
+      }
+    },
+    "sqlAutobackupEncryptionPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/590e5124-5ad4-4de3-abad-10e8c3b6a79f/resourceGroups/test-cnn/providers/Microsoft.KeyVault/vaults/test-cnn-keyvault"
+        },
+        "secretName": "test-cnn-sql-backup"
+      }
+    }
+  }
+}

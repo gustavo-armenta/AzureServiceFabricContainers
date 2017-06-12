@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "value": "responsiveadmin"
+    },
+    "adVMSize": {
+      "value": "Standard_D2_v2"
+    },
+    "sqlVMSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "witnessVMSize": {
+      "value": "Standard_DS2_v2"
+    },
+    "domainName": {
+      "value": "contoso.com"
+    },
+    "sqlServerServiceAccountUserName": {
+      "value": "sqlservice"
+    },
+    "sqlStorageAccountName": {
+      "value": "testscusc111"
+    },
+    "sqlStorageAccountType": {
+      "value": "Premium_LRS"
+    },
+    "virtualNetworkName": {
+      "value": "autohav2VNET"
+    },
+    "autoPatchingDay": {
+      "value": "Sunday"
+    },
+    "autoPatchingStartHour": {
+      "value": "2"
+    },
+    "sqlAOAGName": {
+      "value": "Contoso-ag"
+    },
+    "sqlAOListenerPort": {
+      "value": "1433"
+    },
+    "sqlAOListenerName": {
+      "value": "Contoso-listener"
+    },
+    "sqlServerVersion": {
+      "value": "SQL2016-WS2012R2-ENT"
+    },
+    "numberOfSqlVMDisks": {
+      "value": "1"
+    },
+    "workloadType": {
+      "value": "GENERAL"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+        },
+        "secretName": "test-scus-sql-vm"
+      }
+    },
+    "sqlServerServiceAccountPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+        },
+        "secretName": "test-scus-sql-admin"
+      }
+    }
+  }
+}

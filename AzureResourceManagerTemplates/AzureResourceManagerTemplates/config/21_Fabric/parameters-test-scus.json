@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "test-scus-csbdenorm"
+    },
+    "loadBalancerIP": {
+      "value": "10.164.116.92"
+    },
+    "adminUserName": {
+      "value": "responsiveadmin"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+        },
+        "secretName": "test-scus-fabric-vm"
+      }
+    },
+    "sourceVaultValue": {
+      "value": "/subscriptions/bfb0ba87-c499-4f2a-9224-4456c845d0a6/resourceGroups/test-scus/providers/Microsoft.KeyVault/vaults/test-scus-keyvault"
+    },
+    "primaryCertificateThumbprint": {
+      "value": "A4ED74F0CC7C5FE1DF0896C8B5D5E9F69402497B"
+    },
+    "secondaryCertificateThumbprint": {
+      "value": "5BF04EBBDD3B0B2CA3424A820EE119C90209A5B5"
+    },
+    "clientCertificateThumbprints": {
+      "value": [
+        {
+          "isAdmin": true,
+          "certificateThumbprint": "64A6D78E6FB8D69450E57481C28EC1C70360D0F3"
+        }
+      ]
+    },
+    "vaultCertificates": {
+      "value": [
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-primarycertificate/91bf499ced0942d5adf2f13cf768a02a"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-secondarycertificate/4f352723b6ab4602bfcbdcf61ab7943b"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-admincertificate/f53faf655f1e4abf878d433ac7ee200e"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-scus-keyvault.vault.azure.net/secrets/test-scus-fabric-encryptioncertificate/25f0a6eb33fd461ab89b9c27b3c2e0bf"
+        }
+      ]
+    }
+  }
+}

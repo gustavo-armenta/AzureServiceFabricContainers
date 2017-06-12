@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "test-cnn-csbwebapi"
+    },
+    "adminUserName": {
+      "value": "responsiveadmin"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/590e5124-5ad4-4de3-abad-10e8c3b6a79f/resourceGroups/test-cnn/providers/Microsoft.KeyVault/vaults/test-cnn-keyvault"
+        },
+        "secretName": "test-cnn-fabric-vm"
+      }
+    },
+    "dnsName": {
+      "value": "test-cnn-csbwebapi"
+    },
+    "sourceVaultValue": {
+      "value": "/subscriptions/590e5124-5ad4-4de3-abad-10e8c3b6a79f/resourceGroups/test-cnn/providers/Microsoft.KeyVault/vaults/test-cnn-keyvault"
+    },
+    "primaryCertificateThumbprint": {
+      "value": "52C59C6567EB2B047D9C170799412C8E2B5D668D"
+    },
+    "secondaryCertificateThumbprint": {
+      "value": "B96B5A3683DB717664D5DB5B16887BDFA08E8797"
+    },
+    "clientCertificateThumbprints": {
+      "value": [
+        {
+          "isAdmin": true,
+          "certificateThumbprint": "7647637B06CE5C276C4EC540337C2CBBC881468E"
+        }
+      ]
+    },
+    "vaultCertificates": {
+      "value": [
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-cnn-keyvault.vault.azure.cn:443/secrets/test-cnn-fabric-primarycertificate/d1495f3fd00c40c79b79a256deab2d4c"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-cnn-keyvault.vault.azure.cn:443/secrets/test-cnn-fabric-secondarycertificate/7dd69e2f663344ff8bfbb1e6f425aaec"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-cnn-keyvault.vault.azure.cn:443/secrets/test-cnn-fabric-admincertificate/b6833ab85e834785b62289e11cdd7027"
+        },
+        {
+          "certificateStore": "My",
+          "certificateUrl": "https://test-cnn-keyvault.vault.azure.cn:443/secrets/test-cnn-fabric-encryptioncertificate/e993c74a33c24b6b84699694a75bd434"
+        }
+      ]
+    }
+  }
+}
